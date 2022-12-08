@@ -5,6 +5,7 @@
 #include <math.h>
 
 
+// Example from chatGPT
 int* knn(int k, int d, int n, const double *points, const double* query) {
     // Create an array to store the distances between the query and each point
   double distances[n];
