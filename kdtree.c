@@ -6,8 +6,6 @@
 #include <assert.h>
 #include <math.h>
 
-//test
-
 struct node {
   int point_index;
   int axis;
