@@ -5,7 +5,7 @@
 #include <assert.h>
 
 double* read_points(FILE *f, int* n_out, int *d_out) {
-  double* arr = malloc((*n_out)* (*d_out) * sizeof(double));
+  double* arr = malloc((*n_out +1) * (*d_out +1) * sizeof(double));
   assert(fread(n_out, sizeof(int), 1, f)==1);
   assert(fread(d_out, sizeof(int), 1, f)==1);
   assert(fread(arr, sizeof(double), (*n_out)* (*d_out), f)>0);
@@ -13,7 +13,7 @@ double* read_points(FILE *f, int* n_out, int *d_out) {
 }
 
 int* read_indexes(FILE *f, int *n_out, int *k_out) {
-  int* arr = malloc((*n_out)* (*k_out) * sizeof(int));
+  int* arr = malloc((*n_out +1)* (*k_out +1) * sizeof(int));
   assert(fread(n_out, sizeof(int), 1, f)==1);
   assert(fread(k_out, sizeof(int), 1, f)==1);
   assert(fread(arr, sizeof(int), (*n_out)* (*k_out), f)>0);

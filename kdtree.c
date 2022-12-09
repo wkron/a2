@@ -8,7 +8,7 @@
 
 struct node {
   int point_index;
-  int axis;
+  int axis; 
   struct node *left;
   struct node *right;
 };
