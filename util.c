@@ -21,7 +21,7 @@ int insert_if_closer(int k, int d, const double *points, int *closest, const dou
     if (closest[l] == -1) {
        dist = INFINITY;
     } else {
-      dist = distance(d, query, &(points[closest[l]*d]));
+      dist = distance(d, query, &points[closest[l]*d]);
     }
     if (dist>candidate_distance) {
       closest[l] = candidate; 
