@@ -25,7 +25,7 @@ int insert_if_closer(int k, int d, const double *points, int *closest, const dou
     }
     if (dist>candidate_distance) { 
       // Inserts candidate at first point where closer, and pushes all elements behind one back.
-      for (int j = k; j > i; j--){
+      for (int j = k-1; j > i; j--){
         closest[j] = closest[j-1];
       }
       closest[i] = candidate;
