@@ -9,7 +9,6 @@
 struct node {
   int point_index;
   int axis; 
-  const double *points; //Har selv tilføjet den her, går imod deres metode
   struct node *left;
   struct node *right;
 };
@@ -19,32 +18,46 @@ struct kdtree {
   const double *points;
   struct node* root;
 };
-int cmp_points(const double *x, const double *y, int* cp) {
-  int c = *cp;
-
-  if (x[c] < y[c]) {
+struct sortdata
+{
+  int d;
+  const double *points;
+  int axis;
+};
+int cmp_points( int *x, int *y, struct sortdata *sortdata) {
+  int c = sortdata->axis;
+  int d = sortdata-> d;
+  const double *points = sortdata -> points;
+  if (points[*x * d+c] < points[*y * d+c]) { // Det er her segmentation fault sker
     return -1;
-  } else if (x[c] == y[c]) {
+  } else if (points[*x * d+c] == points[*y * d+c]) {
     return 0;
   } else {
     return 1;
   }
 }
+
+
 struct node* kdtree_create_node(int d, const double *points,
                                 int depth, int n, int *indexes) {
 
     int axis = depth%d ;
     while(n > 1){
-      hpps_quicksort((void *) points, n, d*sizeof(double),
+      struct sortdata* sortdata = malloc(sizeof(sortdata));
+      sortdata->d=d;
+      sortdata->points = points;
+      sortdata->axis = axis;
+
+      hpps_quicksort((void *) indexes, n, d*sizeof(double),
                     (int (*)(const void*, const void*, void*))cmp_points,
-                    &axis); 
-      double *before_array = malloc(n/2 * sizeof(double));
-      double *after_array = malloc(n/2 * sizeof(double));
+                    &sortdata);
+      int *before_array = malloc(n/2 * sizeof(int));
+      int *after_array = malloc(n/2 * sizeof(int));
       for (int i = 0; i < n/2; i++) {
-        before_array[i] = points[i];
+        before_array[i] = indexes[i];
       }
       for (int i = 0; i < n/2-1; i++) {
-        after_array[i] = points[i+n/2+1];
+        after_array[i] = indexes[i+n/2+1];
       }
       int n_before = n/2;
       int n_after;
@@ -56,19 +69,16 @@ struct node* kdtree_create_node(int d, const double *points,
       }      
 
     struct node* newnode = malloc(sizeof(newnode));
-    newnode->points = points;
-    newnode->point_index = n/2;
+    newnode->point_index = indexes[n/2];
     newnode->axis = axis;
-    newnode->left = kdtree_create_node(d,before_array,depth+1,n_before,indexes);
-    newnode->right = kdtree_create_node(d,after_array,depth+1,n_after,indexes);
-    // free(before_array);
-    // free(after_array);
+    newnode->left = kdtree_create_node(d,points,depth+1,n_before,before_array);
+    newnode->right = kdtree_create_node(d,points,depth+1,n_after,after_array);
     return newnode;   
     }    
     struct node* newnode = malloc(sizeof(newnode));
-    newnode->points = points;
-    newnode->point_index = 0;
+    newnode->point_index = indexes[0];
     newnode->axis = axis;
+    
     return newnode;      
 }
 
@@ -88,7 +98,11 @@ struct kdtree *kdtree_create(int d, int n, const double *points) {
 }
 
 void kdtree_free_node(struct node *node) {
-  free(node);
+  if(node){
+    kdtree_free_node(node->left);
+    kdtree_free_node(node->right);
+    free(node);
+  }
   assert(0);
 }
 
@@ -104,11 +118,11 @@ void kdtree_knn_node(const struct kdtree *tree, int k, const double* query,
   if (node== NULL){
     return;
   }
-  if (insert_if_closer(k,d,node->points,closest,query,node->point_index)){
-    *radius= distance(d, query, &(node->points)[closest[k-1]*d]);
+  if (insert_if_closer(k,d,tree->points,closest,query,node->point_index)){
+    *radius= distance(d, query, &(tree->points)[closest[k-1]*d]);
   }
 
-  int diff = node->points[node->point_index*d+node->axis];
+  int diff = tree->points[node->point_index*d+node->axis]-query[node->axis];
   if (diff >= 0 || *radius> abs(diff)){
     kdtree_knn_node(tree, k, query,closest,radius,node->left);
   }
@@ -166,3 +180,4 @@ void kdtree_svg(double scale, FILE* f, const struct kdtree *tree) {
   assert(tree->d == 2);
   kdtree_svg_node(scale, f, tree, 0, 0, 1, 1, tree->root);
 }
+
