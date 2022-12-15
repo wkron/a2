@@ -43,8 +43,8 @@ struct node* kdtree_create_node(int d, const double *points,
       for (int i = 0; i < n/2; i++) {
         before_array[i] = points[i];
       }
-      for (int i = n/2+1; i/2 < n; i++) {
-        after_array[i] = points[i];
+      for (int i = 0; i < n/2-1; i++) {
+        after_array[i] = points[i+n/2+1];
       }
       int n_before = n/2;
       int n_after;
@@ -56,34 +56,13 @@ struct node* kdtree_create_node(int d, const double *points,
       }      
 
     struct node* newnode = malloc(sizeof(newnode));
-    hpps_quicksort(&points, n, d*sizeof(double),
-                 (int (*)(const void*, const void*, void*))cmp_points,
-                 &axis); 
-    double *Beforearray = malloc(n/2 * sizeof(double));
-    double *Afterarray = malloc(n/2 * sizeof(double));
-    for (int i = 0; i < n/2; i++) {
-    Beforearray[i] = points[i];
-    }
-    for (int i = n/2+1; n/2 < n; i++) {
-    Afterarray[i] = points[i];
-    }
-    int n_1= 0;
-    int n_2= 0 ;
-    if (n%2==1){
-      n_1=n/2;
-      n_2=n/2;
-    }
-    if (n%2==0){
-      n_1=n/2;
-      n_2=n/2-1;
-    }
-    newnode-> points = points;
+    newnode->points = points;
     newnode->point_index = n/2;
     newnode->axis = axis;
     newnode->left = kdtree_create_node(d,before_array,depth+1,n_before,indexes);
     newnode->right = kdtree_create_node(d,after_array,depth+1,n_after,indexes);
-    free(before_array);
-    free(after_array);
+    // free(before_array);
+    // free(after_array);
     return newnode;   
     }    
     struct node* newnode = malloc(sizeof(newnode));
@@ -121,24 +100,25 @@ void kdtree_free(struct kdtree *tree) {
 void kdtree_knn_node(const struct kdtree *tree, int k, const double* query,
                      int *closest, double *radius,
                      const struct node *node) {
+  int d = tree->d;
   if (node== NULL){
     return;
   }
-  if (insert_if_closer(k,tree->d,node->points,closest,query,node->point_index)==1){
-    *radius= closest[k-1];
+  if (insert_if_closer(k,d,node->points,closest,query,node->point_index)){
+    *radius= distance(d, query, &(node->points)[closest[k-1]*d]);
   }
 
-  int diff = node->points[node->point_index*tree->d+node->axis];
+  int diff = node->points[node->point_index*d+node->axis];
   if (diff >= 0 || *radius> abs(diff)){
     kdtree_knn_node(tree, k, query,closest,radius,node->left);
-  
+  }
   if(diff <=0 || *radius > abs(diff)){
     kdtree_knn_node(tree, k, query,closest,radius,node->right);
   };
-  assert(0);
+  return;
 }
 
-int* kdtree_knn(const struct kdtree *tree, int k, const double* query) {
+int* kdtree_knn(const struct kdtree *tree, int k, const double* query){
   int* closest = malloc(k * sizeof(int));
   double radius = INFINITY;
 
