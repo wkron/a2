@@ -97,10 +97,17 @@ void kdtree_knn_node(const struct kdtree *tree, int k, const double* query,
   if (node== NULL){
     return 1;
   }
-  insert_if_closer(k,tree->d,node->points,closest,query,node->point_index);
-  
-  int diff = node->points[node->point_index*tree->d+node->axis];
+  if (insert_if_closer(k,tree->d,node->points,closest,query,node->point_index)==1){
+    radius= closest[k-1];
+  }
 
+  int diff = node->points[node->point_index*tree->d+node->axis];
+  if (diff >= 0 || radius> abs(diff)){
+    kdtree_knn_node(tree, k, query,closest,radius,node->left);
+  
+  if(diff <=0 || radius > abs(diff)){
+    kdtree_knn_node(tree, k, query,closest,radius,node->right);
+  };
   assert(0);
 }
 
@@ -113,7 +120,7 @@ int* kdtree_knn(const struct kdtree *tree, int k, const double* query) {
   }
 
   kdtree_knn_node(tree, k, query, closest, &radius, tree->root);
-
+  
   return closest;
 }
 
