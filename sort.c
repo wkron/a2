@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 static void* idx(void* base, size_t size, int i) {
-  return ((unsigned char*)base)+i*size;
+  return ((unsigned char*) base)+i*size;
 }
 
 int partition(void *a, size_t size,
@@ -43,7 +43,6 @@ static void quicksort(int* a, size_t size,
   if (end-start<2) {
     return;
   }
-
   int q = partition(a, size, compar, arg, start, end);
   quicksort(a, size, compar, arg, start, q);
   quicksort(a, size, compar, arg, q, end);

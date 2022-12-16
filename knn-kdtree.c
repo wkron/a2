@@ -48,7 +48,8 @@ int main(int argc, char** argv) {
   printf("Finding indexes of %d nearest neighbours\n", k);
 
   struct kdtree *kdtree = kdtree_create(d, n_points, points);
-  int* indexes = malloc(n_queries*k*sizeof(int));
+  int* indexes = malloc(n_queries*d*k*sizeof(int));
+  printf("Presorting complete!\n");
 
   for (int q = 0; q < n_queries; q++) {
     int *closest = kdtree_knn(kdtree, k, &queries[q*d]);
