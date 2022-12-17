@@ -30,7 +30,7 @@ int cmp_points( int *x, int *y, struct sortdata *sortdata) {
   int d = sortdata-> d;
   const double *points = sortdata -> points;
   // printf("x: %d, y: %d, axis: %d \n", *x, *y, c);
-  if (points[(*x) * (d)+c] < points[ (*y) * (d) +c]) { // Det er her segmentation fault sker
+  if (points[(*x) * (d)+c] < points[ (*y) * (d) +c]) { 
     return -1;
   } else if (points[*x * d+c] == points[*y * d+c]) {
     return 0;
@@ -53,7 +53,7 @@ struct node* kdtree_create_node(int d, const double *points,
                     (int (*)(const void*, const void*, void*))cmp_points,
                     sortdata);
       int n_before = n/2;
-      int n_after = n/2; 
+      int n_after = (n%2)? n/2 : n/2-1; 
       int *before_array = malloc(n_before * sizeof(int));
       int *after_array = malloc(n_after * sizeof(int));
       for (int i = 0; i < n/2; i++) {
