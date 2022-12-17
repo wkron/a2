@@ -52,14 +52,14 @@ struct node* kdtree_create_node(int d, const double *points,
       hpps_quicksort((void *) indexes, n, sizeof(int),
                     (int (*)(const void*, const void*, void*))cmp_points,
                     sortdata);
-      int *before_array = malloc(n/2 * sizeof(int));
-      int *after_array = malloc(n/2 * sizeof(int));
       int n_before = n/2;
-      int n_after = (n%2) ? n/2-1 : n/2; 
+      int n_after = n/2; 
+      int *before_array = malloc(n_before * sizeof(int));
+      int *after_array = malloc(n_after * sizeof(int));
       for (int i = 0; i < n/2; i++) {
         before_array[i] = indexes[i];
       }
-      for (int i = 0; i < n/2-1; i++) {
+      for (int i = 0; i < n_after+1; i++) {
         after_array[i] = indexes[i+n/2+1];
       }
       struct node* newnode = malloc(sizeof(struct node));
@@ -68,17 +68,8 @@ struct node* kdtree_create_node(int d, const double *points,
       newnode->left = kdtree_create_node(d,points,depth+1,n_before,before_array);
       newnode->right = kdtree_create_node(d,points,depth+1,n_after,after_array);
       return newnode;   
-    }    
-    // if(n == 2){
-    //   int *before_array = malloc(sizeof(int));
-    //   before_array[0] = indexes[0];
-    //   struct node* newnode = malloc(sizeof(struct node));
-    //   newnode->point_index = indexes[1];
-    //   newnode->axis = axis;
-    //   newnode->left = kdtree_create_node(d, points, depth+1, 1, before_array);
-    //   newnode->right = NULL;
-    //   return newnode;      
-    // }
+    }  
+
     if(n == 1){
       struct node* newnode = malloc(sizeof(struct node));
       newnode->point_index = indexes[0];
@@ -137,7 +128,7 @@ void kdtree_knn_node(const struct kdtree *tree, int k, const double* query,
   }
   if(diff <=0 || *radius > abs(diff)){
     kdtree_knn_node(tree, k, query,closest,radius,node->right);
-  };
+  }
   return;
 }
 
