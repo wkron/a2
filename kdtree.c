@@ -29,8 +29,7 @@ int cmp_points( int *x, int *y, struct sortdata *sortdata) {
   int c = sortdata-> axis;
   int d = sortdata-> d;
   const double *points = sortdata -> points;
-  // printf("x: %d, y: %d, axis: %d \n", *x, *y, c);
-  if (points[(*x) * (d)+c] < points[ (*y) * (d) +c]) { 
+  if (points[*x * d+c] < points[*y * d +c]) { 
     return -1;
   } else if (points[*x * d+c] == points[*y * d+c]) {
     return 0;
@@ -43,7 +42,7 @@ int cmp_points( int *x, int *y, struct sortdata *sortdata) {
 struct node* kdtree_create_node(int d, const double *points,
                                 int depth, int n, int *indexes) {
 
-    int axis = (depth % d);
+    int axis = depth % d;
     if(n > 1){
       struct sortdata *sortdata = malloc(sizeof(struct sortdata));
       sortdata->d = d;
@@ -53,7 +52,7 @@ struct node* kdtree_create_node(int d, const double *points,
                     (int (*)(const void*, const void*, void*))cmp_points,
                     sortdata);
       int n_before = n/2;
-      int n_after = (n%2)? n/2 : n/2-1; 
+      int n_after = (n-1)/2; // eller (n%2)? n/2 : n/2-1;  // if n is uneven, set n_after = n/2 - if n is even, set n_after = n/2-1.
       int *before_array = malloc(n_before * sizeof(int));
       int *after_array = malloc(n_after * sizeof(int));
       for (int i = 0; i < n_before; i++) {
@@ -67,6 +66,11 @@ struct node* kdtree_create_node(int d, const double *points,
       newnode->axis = axis;
       newnode->left = kdtree_create_node(d,points,depth+1,n_before,before_array);
       newnode->right = kdtree_create_node(d,points,depth+1,n_after,after_array);
+
+      free(sortdata);
+      free(before_array);
+      free(after_array);
+      
       return newnode;   
     }  
     if(n == 1){
