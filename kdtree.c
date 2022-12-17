@@ -47,26 +47,25 @@ struct node* kdtree_create_node(int d, const double *points,
     printf("Et eller andet sker da \n");
     printf("%d er n, %d er d, depth er %d \n", n, d, depth);
     if(n > 2){
-      struct sortdata sortdata; // = malloc(sizeof(sortdata));
-      sortdata.d = d;
-      sortdata.points = points;
-      sortdata.axis = axis;
+      struct sortdata *sortdata = malloc(sizeof(struct sortdata));
+      sortdata->d = d;
+      sortdata->points = points;
+      sortdata->axis = axis;
       hpps_quicksort((void *) indexes, n, sizeof(int),
                     (int (*)(const void*, const void*, void*))cmp_points,
-                    &sortdata);
-      printf("Den kommer vel ikke her ned\n");
-      int *before_array = malloc(n/2+1 * sizeof(int));
+                    sortdata);
+      printf("Den kommer vel ikke her ned 3/2 = %d\n", (3/2));
+      int *before_array = malloc(n/2 * sizeof(int));
       int *after_array = malloc(n/2 * sizeof(int));
-      int n_before = n/2-1;
-      int n_after =  n/2+1;  
-      
+      int n_before = n/2;
+      int n_after = (n%2) ? n/2-1 : n/2; 
       for (int i = 0; i < n/2; i++) {
         before_array[i] = indexes[i];
       }
-      for (int i = 0; i < n/2; i++) {
+      for (int i = 0; i < n/2-1; i++) {
         after_array[i] = indexes[i+n/2+1];
       }
-      struct node* newnode = malloc(sizeof(newnode));
+      struct node* newnode = malloc(sizeof(struct node));
       newnode->point_index = indexes[n/2];
       newnode->axis = axis;
       newnode->left = kdtree_create_node(d,points,depth+1,n_before,before_array);
@@ -78,7 +77,7 @@ struct node* kdtree_create_node(int d, const double *points,
       printf("Den kom sgu herned! n=2\n");
       int *before_array = malloc(sizeof(int));
       before_array[0] = indexes[0];
-      struct node* newnode = malloc(sizeof(newnode));
+      struct node* newnode = malloc(sizeof(struct node));
       newnode->point_index = indexes[1];
       newnode->axis = axis;
       newnode->left = kdtree_create_node(d, points, depth+1, 1, before_array);
@@ -87,7 +86,7 @@ struct node* kdtree_create_node(int d, const double *points,
     }
     if(n == 1){
       printf("Den kom sgu herned! n=1\n");
-      struct node* newnode = malloc(sizeof(newnode));
+      struct node* newnode = malloc(sizeof(struct node));
       newnode->point_index = indexes[0];
       newnode->axis = axis;
       newnode->left = NULL;
@@ -121,7 +120,6 @@ void kdtree_free_node(struct node *node) {
     kdtree_free_node(node->right);
     free(node);
   }
-  assert(0);
 }
 
 void kdtree_free(struct kdtree *tree) {
