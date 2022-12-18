@@ -52,11 +52,7 @@ struct node* kdtree_create_node(int d, const double *points,
                     (int (*)(const void*, const void*, void*))cmp_points,
                     sortdata);
       int n_before = n/2;
-      int n_after = (n-1)/2; 
-      int n_after = n/2; // eller (n%2)? n/2 : n/2-1;  // if n is uneven, set n_after = n/2 - if n is even, set n_after = n/2-1.
-      if (n%2==0){
-        n_after=n/2-1;
-      }
+      int n_after = (n-1)/2;
       int *before_array = malloc(n_before * sizeof(int));
       int *after_array = malloc(n_after * sizeof(int));
       for (int i = 0; i < n_before; i++) {
