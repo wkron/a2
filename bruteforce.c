@@ -2,16 +2,14 @@
 #include "util.h"
 #include <stdlib.h>
 #include <assert.h>
-#include <math.h>
 #include <stdio.h>
-
 
 
 int* knn(int k, int d, int n, const double *points, const double* query) {
   // Allocate memory for the array
   int* closest = malloc(k * sizeof(int));
 
-  // Set all elements to 0
+  // Set all elements to -1, indicating no element.
   for (int i = 0; i < k; i++){
     closest[i] = -1;
   }
