@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include <string.h>
 
 struct node {
   int point_index;
@@ -41,35 +42,23 @@ int cmp_points( int *x, int *y, struct sortdata *sortdata) {
 
 struct node* kdtree_create_node(int d, const double *points,
                                 int depth, int n, int *indexes) {
-
     int axis = depth % d;
     if(n > 1){
-      struct sortdata *sortdata = malloc(sizeof(struct sortdata));
-      sortdata->d = d;
-      sortdata->points = points;
-      sortdata->axis = axis;
+      struct sortdata sortdata = {.d = d, .points = points, .axis = axis};
+
       hpps_quicksort((void *) indexes, n, sizeof(int),
                     (int (*)(const void*, const void*, void*))cmp_points,
-                    sortdata);
+                    &sortdata);
       int n_before = n/2;
       int n_after = (n-1)/2;
-      int *before_array = malloc(n_before * sizeof(int));
-      int *after_array = malloc(n_after * sizeof(int));
-      for (int i = 0; i < n_before; i++) {
-        before_array[i] = indexes[i];
-      }
-      for (int i = 0; i < n_after; i++) {
-        after_array[i] = indexes[i+n/2+1];
-      }
+      int *before_array  = &indexes[0];
+      int *after_array = &indexes[n/2+1];
+
       struct node* newnode = malloc(sizeof(struct node));
       newnode->point_index = indexes[n/2];
       newnode->axis = axis;
-      newnode->left = kdtree_create_node(d,points,depth+1,n_before,before_array);
-      newnode->right = kdtree_create_node(d,points,depth+1,n_after,after_array);
-
-      free(sortdata);
-      free(before_array);
-      free(after_array);
+      newnode->left = kdtree_create_node(d,points,depth+1,n_before, before_array);
+      newnode->right = kdtree_create_node(d,points,depth+1,n_after, after_array);
 
       return newnode;   
     }  
