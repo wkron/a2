@@ -42,8 +42,8 @@ int cmp_points( int *x, int *y, struct sortdata *sortdata) {
 
 struct node* kdtree_create_node(int d, const double *points,
                                 int depth, int n, int *indexes) {
-    int axis = depth % d;
     if(n > 1){
+      int axis = depth % d;
       struct sortdata sortdata = {.d = d, .points = points, .axis = axis};
 
       hpps_quicksort((void *) indexes, n, sizeof(int),
@@ -63,6 +63,7 @@ struct node* kdtree_create_node(int d, const double *points,
       return newnode;   
     }  
     if(n == 1){
+      int axis = depth % d;
       struct node* newnode = malloc(sizeof(struct node));
       newnode->point_index = indexes[0];
       newnode->axis = axis;
